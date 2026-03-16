@@ -40,7 +40,42 @@
  *
  */
 function createAccount(accountName, openingBalance) {
-  // your implementation here
+  if (!(this instanceof createAccount)) {
+    return new createAccount(accountName, openingBalance);
+  }
+
+  let balance = openingBalance;
+  let transactions = [
+    { action: "open", amount: openingBalance }
+  ];
+
+  this.deposit = function(amount) {
+    if (amount > 0) {
+      balance += amount;
+      transactions.push({ action: "deposit", amount: amount });
+    }
+    return "OK";
+  };
+
+  this.withdraw = function(amount) {
+    if (amount > balance) {
+      return "Withdraw over balance";
+    }
+
+    if (amount > 0) {
+      balance -= amount;
+      transactions.push({ action: "withdraw", amount: amount });
+    }
+
+    return "OK";
+  };
+
+  this.checkAccount = function() {
+    return {
+      transactions: transactions,
+      balance: balance
+    };
+  };
 }
 
 /**
@@ -56,8 +91,48 @@ function createAccount(accountName, openingBalance) {
  * Implementation:
  */
 function Person(initialName, initialAge) {
-  // your implementation here
-}
+  let name = "";
+  let age = 0;
+
+  const person = {};
+
+  Object.defineProperties(person, {
+    getName: {
+      get: function () {
+        return name;
+      }
+    },
+
+    getAge: {
+      get: function () {
+        return age;
+      }
+    },
+
+    setName: {
+      set: function (value) {
+        if (typeof value === "string" && value.length > 0) {
+          name = value.charAt(0).toUpperCase() + value.slice(1);
+        }
+      }
+    },
+
+    setAge: {
+      set: function (value) {
+        if (typeof value === "number" && value >= 0 && value <= 120) {
+          age = value;
+        } else {
+          console.log("Invalid age provided");
+        }
+      }
+    }
+  });
+
+  person.setName = initialName;
+  person.setAge = initialAge;
+
+  return person;
+} 
 
 /**
  * Question 3: Using Classes in JavaScript
@@ -91,11 +166,30 @@ function Person(initialName, initialAge) {
  */
 
 class Car {
-  // your implementation here
+  constructor(make, model, year) {
+    this.make = make;
+    this.model = model;
+    this.year = year;
+  }
+
+  getInfo() {
+    return `${this.make} ${this.model} ${this.year}`;
+  }
 }
 
 class ElectricCar extends Car {
-  // your implementation here
+  constructor(make, model, year, batteryLevel) {
+    super(make, model, year);
+    this.batteryLevel = batteryLevel;
+  }
+
+  getBatteryInfo() {
+    return `Battery level at ${this.batteryLevel}%`;
+  }
+
+  getInfo() {
+    return `${this.make} ${this.model} ${this.year} with ${this.batteryLevel}% battery`;
+  }
 }
 
 /**
@@ -110,14 +204,22 @@ class ElectricCar extends Car {
  * Implement these methods directly on the Array.prototype to make them available on all array instances.
  */
 
-// Extending Array.prototype to include serialize method
 Array.prototype.serialize = function () {
-  // your implementation here
+  return JSON.stringify(this);
 };
 
-// Extending Array.prototype to include deserialize method
 Array.prototype.deserialize = function (json) {
-  // your implementation here
+  try {
+    const data = JSON.parse(json);
+    if (Array.isArray(data)) {
+      this.length = 0;
+      this.push(...data);
+    } else {
+      console.log("Provided JSON is not an array");
+    }
+  } catch (e) {
+    console.log("Invalid JSON string");
+  }
 };
 
 /**
@@ -140,7 +242,49 @@ Array.prototype.deserialize = function (json) {
  */
 
 function createShoppingCart() {
-  // your implementation here
+  const items = [];
+
+  function findItem(id) {
+    return items.find(item => item.id === id);
+  }
+
+  return {
+    addItem(id, name, price) {
+      const existing = findItem(id);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        items.push({ id, name, price, quantity: 1 });
+      }
+    },
+
+    removeItem(id) {
+      const existing = findItem(id);
+      if (existing) {
+        existing.quantity -= 1;
+        if (existing.quantity <= 0) {
+          const index = items.indexOf(existing);
+          items.splice(index, 1);
+        }
+      }
+    },
+
+    check() {
+      return {
+        itemNumber: this.itemNumber, 
+        total: this.totalPrice,      
+        items: items.map(i => ({ ...i }))
+      };
+    },
+
+    get totalPrice() {
+      return items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    },
+
+    get itemNumber() {
+      return items.reduce((sum, i) => sum + i.quantity, 0);
+    }
+  };
 }
 
 module.exports = {
