@@ -1,10 +1,15 @@
 import { StyleSheet, Text, Pressable } from "react-native";
 
-export default function Cell({ play, onPress }) {
+export default function Cell({ play, onPress, isWinning }) {
   return (
     <Pressable
       style={({ pressed }) =>
-        pressed ? [styles.cell, { opacity: 0.5 }] : styles.cell
+        pressed
+          ? [
+              styles.cell,
+              { opacity: 0.5, backgroundColor: isWinning ? "#ff0" : "#090" },
+            ]
+          : [styles.cell, { backgroundColor: isWinning ? "#ff0" : "#090" }]
       }
       onPress={play ? null : onPress}
     >
@@ -17,7 +22,6 @@ const styles = StyleSheet.create({
   cell: {
     width: 80,
     height: 80,
-    backgroundColor: "#090",
     borderWidth: 1,
     borderColor: "black",
     justifyContent: "center",
